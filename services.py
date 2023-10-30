@@ -4,9 +4,8 @@ import socket
 import threading
 import sqlite3
 
-from models import *
-
-con = sqlite3.connect(input())
+con = sqlite3.connect("database.db")
+con.row_factory = sqlite3.Row
 
 
 class UserService:
@@ -25,11 +24,15 @@ class UserService:
             }
         }))
 
-    def findById(self, id: int):
-        return User.get_or_none(User.id == id)
+    def findById(self, id_: int):
+        with con.cursor() as cursor:
+            cursor.execute(f"SELECT * FROM users WHERE id = {id_}")
+            return cursor.fetchone()
 
     def findAll(self):
-        return User.select()
+        with con.cursor() as cursor:
+            cursor.execute(f"SELECT * FROM users")
+            return cursor.fetchall()
 
 
 class TaskService:
@@ -49,11 +52,15 @@ class TaskService:
             }
         }))
 
-    def findById(self, id: int):
-        return Task.get_or_none(Task.id == id)
+    def findById(self, id_: int):
+        with con.cursor() as cursor:
+            cursor.execute(f"SELECT * FROM tasks WHERE id = {id_}")
+            return cursor.fetchone()
 
     def findAll(self):
-        return Task.select()
+        with con.cursor() as cursor:
+            cursor.execute(f"SELECT * FROM tasks")
+            return cursor.fetchall()
 
     def deleteById(self, id: int):
         with con.cursor() as cursor:

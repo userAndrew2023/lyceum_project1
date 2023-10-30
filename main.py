@@ -3,7 +3,7 @@ from services import *
 server_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 server_address = ('0.0.0.0', 6000)
 server_socket.bind(server_address)
-server_socket.listen(5)
+server_socket.listen(20)
 
 
 def handle_client(client):
@@ -13,6 +13,7 @@ def handle_client(client):
             if not d:
                 break
             message: str = d.decode('utf-8')
+            print(message)
             message: dict = json.loads(message)
             data: dict = message.get("data")
             if message.get("model") == "User":

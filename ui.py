@@ -2,9 +2,10 @@ import io
 import sys
 
 from PyQt5 import uic
-from PyQt5.QtCore import QMimeData, Qt
+from PyQt5.QtCore import QMimeData, Qt, QSize
 from PyQt5.QtGui import QDrag
-from PyQt5.QtWidgets import QApplication, QMainWindow, QListWidgetItem, QListWidget
+from PyQt5.QtWidgets import QApplication, QMainWindow, QListWidgetItem, QListWidget, QPushButton, QVBoxLayout, QWidget, \
+    QLabel, QLineEdit, QMessageBox, QAbstractItemView
 
 template = """<?xml version="1.0" encoding="UTF-8"?>
 <ui version="4.0">
@@ -60,6 +61,27 @@ template = """<?xml version="1.0" encoding="UTF-8"?>
          </widget>
         </item>
         <item>
+         <widget class="QPushButton" name="addTodo">
+          <property name="font">
+           <font>
+            <pointsize>12</pointsize>
+           </font>
+          </property>
+          <property name="text">
+           <string>Add</string>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QLineEdit" name="lineEdit">
+          <property name="font">
+           <font>
+            <pointsize>11</pointsize>
+           </font>
+          </property>
+         </widget>
+        </item>
+        <item>
          <widget class="QListWidget" name="listWidget"/>
         </item>
        </layout>
@@ -77,6 +99,30 @@ template = """<?xml version="1.0" encoding="UTF-8"?>
           </property>
           <property name="text">
            <string>IN PROGRESS</string>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QPushButton" name="addProgress">
+          <property name="font">
+           <font>
+            <pointsize>12</pointsize>
+           </font>
+          </property>
+          <property name="cursor">
+           <cursorShape>PointingHandCursor</cursorShape>
+          </property>
+          <property name="text">
+           <string>Add</string>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QLineEdit" name="lineEdit_2">
+          <property name="font">
+           <font>
+            <pointsize>11</pointsize>
+           </font>
           </property>
          </widget>
         </item>
@@ -102,6 +148,30 @@ template = """<?xml version="1.0" encoding="UTF-8"?>
          </widget>
         </item>
         <item>
+         <widget class="QPushButton" name="addComplete">
+          <property name="font">
+           <font>
+            <pointsize>12</pointsize>
+           </font>
+          </property>
+          <property name="cursor">
+           <cursorShape>PointingHandCursor</cursorShape>
+          </property>
+          <property name="text">
+           <string>Add</string>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QLineEdit" name="lineEdit_3">
+          <property name="font">
+           <font>
+            <pointsize>11</pointsize>
+           </font>
+          </property>
+         </widget>
+        </item>
+        <item>
          <widget class="QListWidget" name="listWidget_3"/>
         </item>
        </layout>
@@ -116,7 +186,7 @@ template = """<?xml version="1.0" encoding="UTF-8"?>
      <x>0</x>
      <y>0</y>
      <width>1280</width>
-     <height>26</height>
+     <height>21</height>
     </rect>
    </property>
   </widget>
@@ -133,14 +203,38 @@ class Kanban(QMainWindow):
         f = io.StringIO(template)
         uic.loadUi(f, self)
 
-        self.listWidget.addItem("Элемент 1")
-        self.listWidget_2.addItem("Элемент 2")
+        self.addTodo.clicked.connect(self.addTodoListener)
+        self.addProgress.clicked.connect(self.addProgressListener)
+        self.addComplete.clicked.connect(self.addCompleteListener)
 
-        # Устанавливаем обработчики событий для перетаскивания
+        self.listWidget.setDragDropMode(QAbstractItemView.DragDrop)
         self.listWidget.setAcceptDrops(True)
+        self.listWidget_2.setDragDropMode(QAbstractItemView.DragDrop)
         self.listWidget_2.setAcceptDrops(True)
-        self.listWidget.setDragEnabled(True)
-        self.listWidget_2.setDragEnabled(True)
+
+    def addTodoListener(self):
+        if len(self.lineEdit.text().strip()) != 0:
+            self.listWidget.addItem(self.lineEdit.text().strip())
+
+    def addProgressListener(self):
+        if len(self.lineEdit_2.text().strip()) != 0:
+            self.listWidget_2.addItem(self.lineEdit_2.text().strip())
+
+    def addCompleteListener(self):
+        if len(self.lineEdit_3.text().strip()) != 0:
+            self.listWidget_3.addItem(self.lineEdit_3.text().strip())
+
+    def dragEnterEvent(self, e):
+        e.accept()
+
+    def dropEvent(self, e):
+        print('d')
+        # Получаем элемент и источник
+        item = e.source().currentItem()
+        source = e.source()
+
+        # Удаляем элемент из источника
+        source.takeItem(source.row(item))
 
 
 if __name__ == '__main__':
